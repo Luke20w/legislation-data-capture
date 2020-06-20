@@ -2,9 +2,9 @@ const pupeteer = require("puppeteer");
 const crawler = require("crawler-request");
 const fs = require("fs");
 
-async function scrapeIntroducedBills() {
-  const bills = require("./bills.json");
+const bills = require("./bills.json");
 
+async function scrapeNewBills() {
   // Open the Ohio legislature page in a headless browser
   const browser = await pupeteer.launch({
     headless: true,
@@ -39,6 +39,14 @@ async function scrapeIntroducedBills() {
         }
       );
 
+      // Get the title of the bill
+      const title = await page.$eval(
+        "tr:nth-child(" + (i + 2) + ") > td[class=titleCell] > span",
+        (span) => {
+          return span.innerText;
+        }
+      );
+
       // Check if the bill is not already in the array
       if (!bills.some((bill) => bill.name === name)) {
         console.log("Parsing " + name + "...");
@@ -56,7 +64,7 @@ async function scrapeIntroducedBills() {
 
         // Convert the pdf to a string and add it to the array of bills
         crawler(pdfLink).then((response) => {
-          bills.push({ name: name, content: response.text });
+          bills.push({ name: name, title: title, content: response.text });
         });
 
         // Go back to the table page
@@ -72,4 +80,4 @@ async function scrapeIntroducedBills() {
   browser.close();
 }
 
-scrapeIntroducedBills();
+scrapeNewBills();
