@@ -7,6 +7,7 @@
   "license": "ISC",
   "dependencies": {
     "crawler-request": "^1.2.2",
+    "file-system": "^2.2.2",
     "puppeteer": "^4.0.0"
   }
 }

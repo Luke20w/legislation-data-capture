@@ -1,12 +1,15 @@
 const pupeteer = require("puppeteer");
 const crawler = require("crawler-request");
+const fs = require("fs");
 
 async function scrapeIntroducedBills() {
-  const bills = [];
+  const bills = require("./bills.json");
 
   // Open the Ohio legislature page in a headless browser
   const browser = await pupeteer.launch({
-    headless: true,
+    headless: false,
+    executablePath:
+      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
   });
   const page = await browser.newPage();
   const url =
@@ -62,7 +65,8 @@ async function scrapeIntroducedBills() {
     }
   }
 
-  // console.log(bills);
+  // Saves the bills array to the bills.json file
+  fs.writeFileSync("./bills.json", JSON.stringify(bills, null, 2), "utf-8");
 
   console.log("closing browser...");
   browser.close();
