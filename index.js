@@ -7,7 +7,7 @@ async function scrapeIntroducedBills() {
 
   // Open the Ohio legislature page in a headless browser
   const browser = await pupeteer.launch({
-    headless: false,
+    headless: true,
     executablePath:
       "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
   });
