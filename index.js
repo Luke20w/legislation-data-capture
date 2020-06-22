@@ -1,11 +1,14 @@
 const pupeteer = require("puppeteer");
 const crawler = require("crawler-request");
 const fs = require("fs");
-var FlexSearch = require("flexsearch");
+const FlexSearch = require("flexsearch");
 
+// Import the bills array from file
 const bills = require("./bills.json");
 
-var index = new FlexSearch("score");
+// Create search index and import the saved index from file
+var searchIndex = new FlexSearch("score");
+searchIndex.import(require("./search-index.json"));
 
 async function scrapeNewBills() {
   // Open the Ohio legislature page in a headless browser
@@ -23,7 +26,7 @@ async function scrapeNewBills() {
   // Get the total number of bills in the table
   const rowCount = await page.$$eval("tr", (trs) => trs.length - 1);
 
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < rowCount; i++) {
     // Get the name of the bill
     const name = await page.$eval(
       "tr:nth-child(" + (i + 2) + ") > td[class=legislationCell] > a > span",
@@ -84,13 +87,13 @@ async function scrapeNewBills() {
         });
 
         // Put the array of lines back together into one string
-        let content = "";
+        var content = "";
         for (const line of lines) {
           content += line + "\n";
         }
 
         // Split the filtered content into seperate sections
-        let sections = content.split("Sec. ");
+        var sections = content.split("Sec. ");
         for (i = 0; i < sections.length; i++) {
           const sectionWords = sections[i].split(" ");
           sections[i] = {
@@ -111,7 +114,7 @@ async function scrapeNewBills() {
               s +
               " to the search index..."
           );
-          index.add(
+          searchIndex.add(
             { bill: bills.length - 1, section: s },
             bills[bills.length - 1].sections[s].content
           );
@@ -129,13 +132,28 @@ async function scrapeNewBills() {
     }
   }
 
-  // Saves the bills array to the bills.json file
+  // Save the bills array to file
   fs.writeFileSync("./bills.json", JSON.stringify(bills, null, 2), "utf-8");
 
+  // Save the search index to file
+  fs.writeFileSync(
+    "./search-index.json",
+    JSON.stringify(searchIndex.export(), null, 2),
+    "utf-8"
+  );
+
+  // Close the browser
   console.log("closing browser...");
   browser.close();
 }
 
-scrapeNewBills();
+function search(query) {
+  const resultsIDs = searchIndex.search(query);
+  var results = [];
+  for (i = 0; i < resultsIDs.length; i++) {
+    results.push(bills[resultsIDs[i].bill].sections[resultsIDs[i].section]);
+  }
+  return results;
+}
 
-// console.log(index.search("graduation requirements"));
+console.log(search("graduation requirements"));
