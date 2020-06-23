@@ -1,7 +1,6 @@
 {
   "name": "legislation-data-capture",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "author": "Luke Weidner",
   "license": "ISC",

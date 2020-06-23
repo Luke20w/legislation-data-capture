@@ -1,4 +1,4 @@
-const pupeteer = require("puppeteer");
+const puppeteer = require("puppeteer");
 const crawler = require("crawler-request");
 const fs = require("fs");
 const FlexSearch = require("flexsearch");
@@ -16,7 +16,7 @@ try {
 
 async function scrapeNewBills() {
   // Open the Ohio legislature page in a headless browser
-  const browser = await pupeteer.launch({
+  const browser = await puppeteer.launch({
     headless: true,
     executablePath:
       "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
@@ -66,10 +66,8 @@ async function scrapeNewBills() {
           "tr:nth-child(" + (i + 2) + ") > td[class=legislationCell] > a"
         );
 
-        // Wait for the pdf link button to load in
-        await page.waitFor(".linkButton");
-
         // Get the link to the bill pdf
+        await page.waitFor(".linkButton");
         const pdfLink = await page.$eval(".linkButton", (a) => a.href);
 
         // Convert the pdf to a string
