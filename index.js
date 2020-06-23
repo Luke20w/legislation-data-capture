@@ -8,7 +8,11 @@ const bills = require("./bills.json");
 
 // Create search index and import the saved index from file
 var searchIndex = new FlexSearch("score");
-searchIndex.import(require("./search-index.json"));
+try {
+  searchIndex.import(require("./search-index.json"));
+} catch {
+  console.log("The search index couldn't be imported");
+}
 
 async function scrapeNewBills() {
   // Open the Ohio legislature page in a headless browser
@@ -97,7 +101,9 @@ async function scrapeNewBills() {
         for (i = 0; i < sections.length; i++) {
           const sectionWords = sections[i].split(" ");
           sections[i] = {
-            name: "Sec." + " " + sectionWords[0],
+            bill: name,
+            title: title,
+            section: "Sec." + " " + sectionWords[0],
             content: "Sec. " + sections[i],
           };
         }
@@ -157,3 +163,4 @@ function search(query) {
 }
 
 console.log(search("graduation requirements"));
+// scrapeNewBills();
